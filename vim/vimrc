@@ -1,0 +1,835 @@
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                       Use vim as IDE (Version 0.7)
+"
+" 优点：
+" 0）所思即所得，让手输入的速度跟上大脑思考的速度
+" 1）所需即所获，只有你想不到的功能、没有实现不了的插件
+"
+" Tools:
+"  (exuberant)-ctags、cscope、markdown、pandoc、pelican、
+"
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" functions {{{
+function! s:get_cache_dir(suffix) "{{{
+    return resolve(expand('$HOME/.cache' . '/' . a:suffix))
+endfunction "}}}
+function! EnsureExists(path) "{{{
+    if !isdirectory(expand(a:path))
+      call mkdir(expand(a:path), 'p')
+    endif
+endfunction "}}}
+" }}}
+
+"-----------------------------------------------------------------------------
+" Key (re)Mappings
+" 说明：使用:map命令，可以列出所有键盘映射。
+"-----------------------------------------------------------------------------
+" 定义快捷键的前缀（即<Leader>），默认值是'\'。
+" let g:mapleader = ','
+
+"-----------------------------------------------------------------------------
+" => 插件管理 —— NeoBundle
+"-----------------------------------------------------------------------------
+" get easier to use and more user friendly vim defaults
+" CAUTION: This option breaks some vi compatibility.
+"          Switch it off if you prefer real vi compatibility
+set nocompatible
+
+" http://www.erikzaadi.com/2012/03/19/auto-installing-vundle-from-your-vimrc/
+" Setting up Vundle - the vim plugin bundler
+if !filereadable(expand('$HOME/.vim/bundle/neobundle.vim/README.md'))
+  echo "Install NeoBundle"
+  silent !git clone https://github.com/Shougo/neobundle.vim.git $HOME/.vim/bundle/neobundle.vim
+endif
+
+" Required:
+set runtimepath+=$HOME/.vim/bundle/neobundle.vim/
+
+" Required:
+call neobundle#begin(expand('$HOME/.vim/bundle/'))
+
+" Let NeoBundle manage NeoBundle
+" Required:
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+" ----------------------------------------------------------------------------
+" 显示中文帮助
+" ----------------------------------------------------------------------------
+NeoBundle 'asins/vimcdoc'
+if version >= 603
+    set helplang=cn
+    set encoding=utf-8
+endif
+
+" ----------------------------------------------------------------------------
+" 语法高亮
+" ----------------------------------------------------------------------------
+" Vim5 and later versions support syntax highlighting. Uncommenting the next
+" line enables syntax highlighting by default.
+if has("syntax")
+  " 开启语法高亮功能
+  syntax enable
+  " 允许用指定语法高亮配色方案替换默认方案
+  syntax on
+endif
+
+" ----------------------------------------------------------------------------
+" 代码缩进
+" ----------------------------------------------------------------------------
+" 使用自动缩进可能需要设置，vim中对自动缩进的详细设置办法见Vim代码缩进设置。
+" 在不同的模式中调整缩进的方法不同：
+" 插入模式: Ctrl-T增加缩进，Ctrl-D减小缩进。
+" 命令模式: >> 右缩进， << 左缩进，注意n<< 或 n>>是缩进多行，如4>>
+" 可视模式: < 、> 用于左右缩进，n< 、n> 可做多节缩进，如 2> 。
+" 另外，= 可对选中的部分进行自动缩进；]p可以实现p的粘贴功能，并自动缩进。
+
+" ----------------------------------------------------------------------------
+" 代码对齐
+" ----------------------------------------------------------------------------
+NeoBundle 'godlygeek/tabular'
+
+" ----------------------------------------------------------------------------
+" 代码排版缩进标识
+" ----------------------------------------------------------------------------
+NeoBundle 'Yggdroot/indentLine'
+let g:indentLine_noConcealCursor = 1
+let g:indentLine_color_term = 0
+let g:indentLine_char = '¦'
+
+" ----------------------------------------------------------------------------
+" 代码折叠
+" ----------------------------------------------------------------------------
+" 基于缩进或语法进行代码折叠
+"set foldmethod=indent
+set foldmethod=syntax
+" 启动 vim 时关闭折叠代码
+set nofoldenable
+" 注：za，打开或关闭当前折叠；zM，关闭所有折叠；zR，打开所有折叠。
+
+" ----------------------------------------------------------------------------
+" 代码导航
+" ----------------------------------------------------------------------------
+" 1、简单代码跳转
+" 在命令模式下可直接使用下述指令：[8]
+" 跳转到定义
+"     gd        ——跳至当前变量的局部声明处
+"     gD        ——跳至当前变量的全局声明处
+" 搜索
+"     *, #  可对光标处的词向前/向后做全词搜索
+"     g*, g# 做相对应的非全词匹配搜索
+" 代码块首尾
+"     [[        ——前移至最近区首（常用于跳至C类型的函数头）
+"     ]]        ——后移至最近区首（同上注）
+"     [{        ——前移至最近代码区的首部（C类型语法）
+"     }]}       ——后移至最近代码区的尾部（同上注）
+"     [m        ——前移至最近方法的首部（Java类型语法）
+"     ]m        ——后移至最近方法的首部（同上注）
+"     [M        ——前移至最近方法的尾部（同上注）
+"     ]M        ——后移至最近方法的尾部（同上注）
+" 括号首尾
+"    % 可在配对的括号、块首尾之前跳转。
+" 位置历史
+"    Ctrl-O 在历史记录中后退，Ctrl-I 则为前进。
+"
+" 2、基于标签的导航
+if executable('ctags')
+" 该功能依赖于ctags工具。[9]安装好ctags后，在存放代码的文件夹
+"   ctags -R .
+" 即可生成一个描述代码结构的tags文件。
+" 实现vim对tags的自动递归查找:
+"   set autochdir		" 自动切换目录
+    set tags=tags;		" 自动查找
+" 设置好后，可在Vim中使用如下功能:Ctrl-]转至最佳匹配的相应Tag，Ctrl-T返回上一个匹配。
+" 如果有多个匹配，g Ctrl-]可显示所有备选的tags。
+" 注意：tags文件不会自动更新，所以当你中途修改了代码时，应该手动重新生成tags文件，
+" vim会随时更新加载tags文件所以不用重启。当前重新生成ctags的快捷键为<Ctrl-F12>
+    map <C-F12> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
+" 为了方便浏览源文件的标签,TagBar提供了一个侧边栏列出了当前文件所有的标签。
+    NeoBundle 'majutsushi/tagbar'
+    nmap <leader>tb :TagbarToggle<CR>
+    let g:tagbar_autofocus = 1
+endif
+
+if has("cscope")
+    " cscope find的用法:
+    " cs find c|d|e|f|g|i|s|t name
+    " s: 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
+    " g: 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
+    " d: 查找本函数调用的函数
+    " c: 查找调用本函数的函数
+    " t: 查找指定的字符串
+    " e: 查找egrep模式，相当于egrep功能，但查找速度快多了
+    " f: 查找并打开文件，类似vim的find功能
+    " i: 查找包含本文件的文件
+
+    "  < cscope 工具配置 >
+    " 指定用来执行 cscope 的命令
+    set csprg=/usr/bin/cscope
+    " 设定可以使用 quickfix 窗口来查看 cscope 结果
+    set cscopequickfix=s-,c-,d-,i-,t-,e-
+    " 使支持用 Ctrl+]  和 Ctrl+t 快捷键在代码间跳转
+    set cscopetag
+    " 先搜索tags标签文件，再搜索cscope数据库
+    set csto=1
+    " 使用|:cstag|(:cs find g)，而不是缺省的:tag
+    set cst
+    " 不显示添加数据库是否成功
+    set nocsverb
+
+    " 在当前目录中添加任何数据库
+    if filereadable("cscope.out")
+        cs add cscope.out
+    "否则添加数据库环境中所指出的
+    elseif $CSCOPE_DB != ""
+        cs add $CSCOPE_DB
+    endif
+
+    " 显示添加成功与否
+    set cscopeverbose
+
+    "快捷键设置
+    nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
+    nmap <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+    nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+endif
+
+" ----------------------------------------------------------------------------
+" 快速开关注释
+" ----------------------------------------------------------------------------
+" 方法一：
+NeoBundle 'scrooloose/nerdcommenter'
+let NERDSpaceDelims = 1
+let NERDRemoveExtraSpaces = 1
+"
+" 方法二：
+"   1.插入注释：
+"       ctrl+v 进入列编辑模式,向下或向上移动光标,把需要注释的行的开头标记起来,
+"   然后按大写的I(shift+i),再插入注释符,比如"//",再按Esc,就会全部注释了。
+"   2.取消注释：
+"       ctrl+v,进入列编辑模式,横向选中列的个数(如"//"注释符号,需要选中两列),
+"   然后按d,就会删除注释符号
+"
+" 方法三：
+"    :5,9s/^/#/g 添加注释#
+"    :5,9s/^#//g 删除注释#
+"    :5,9s#^#//#g 添加注释//，同:5,9s/^/\/\/#/g
+"    :5,9s#^//##g 删除注释//
+
+" ----------------------------------------------------------------------------
+" 2、智能补全和模板补全
+" ----------------------------------------------------------------------------
+" Vim7已经内置了代码补全功能[6]，补全操作可分为两种：关键字补全（即简单地补全到
+" 文档中已有的词，快捷键为 Ctrl-N 或 Ctrl-P）和智能补全（Vim7 中引入 Omni Complete，
+" 可根据语义补全，快捷键为 Ctrl-X Ctrl-O）。
+
+" ----------------------------------------------------------------------------
+" 自动括号补全
+" ----------------------------------------------------------------------------
+NeoBundle 'Raimondi/delimitMate'
+
+" ----------------------------------------------------------------------------
+" 在vim中查找man手册
+" ----------------------------------------------------------------------------
+" 在普通模式下按下 K （大写）即可启动 man 查看光标下的函数。
+
+" ----------------------------------------------------------------------------
+" 工程文件浏览
+" ----------------------------------------------------------------------------
+" netrw插件是vim的标准插件
+" 打开目录命令
+" Ex[plore]  打开当前目录或指定目录
+" Se[xplore] 分割并打开当前目录或指定目录He[xplore]
+" Ve[xplore] 垂直分割并打开当前目录或指定目录
+" Te[xplore] 新建标签并打开当前目录或指定目录
+"
+" 命令列表
+" <cr>  netrw 进入目录或读入文件 |netrw-cr|
+" <del> netrw 试图删除文件/目录 |netrw-del|
+"  -    netrw 往上走一层目录 |netrw--|
+"  a    在以下三种方式间切换: 正常显示，|netrw-a|
+"       隐藏 (不显示匹配 g:netrw_list_hide 的文件) 和
+"       显示 (只显示匹配 g:netrw_list_hide 的文件)
+"  c    使浏览中的目录成为当前目录 |netrw-c|
+"  d    建立目录 |netrw-d|
+"  D    netrw 试图删除文件/目录 |netrw-D|
+"  i    在瘦、长、宽和树形的各种列表方式间切换 |netrw-i|
+" <c-l> netrw 刷新目录列表 |netrw-ctrl-l|
+"  o    打开新浏览窗口，进入光标所在的目录。使用水平分割。|netrw-o|
+"  p    预览文件 |netrw-p|
+"  P    在前次使用的窗口里浏览 |netrw-P|
+"  r    反转排序顺序 |netrw-r|
+"  R    给指定的文件/目录换名 |netrw-R|
+"  s    选择排序方式: 按名字、时间或文件大小排序 |netrw-s|
+"  S    指定按名字排序的后缀优先级 |netrw-S|
+"  t    在新标签页里打开光标所在的文件/目录 |netrw-t|
+"  v    打开新浏览窗口，进入光标所在的目录。使用垂直分割。|netrw-v|
+
+" ----------------------------------------------------------------------------
+" 文件搜索
+" ----------------------------------------------------------------------------
+" http://blog.codepiano.com/pages/ctrlp-cn.light.html#loaded_ctrlp
+NeoBundle 'ctrlpvim/ctrlp.vim'
+
+" ----------------------------------------------------------------------------
+" 环境恢复
+" ----------------------------------------------------------------------------
+
+" ----------------------------------------------------------------------------
+" SCM —— 版本控制
+" ----------------------------------------------------------------------------
+" github-search.vim is a Vim plugin to search Github within Vim.
+NeoBundle 'gmarik/github-search.vim'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'gregsexton/gitv'
+if has('signs')
+    NeoBundle 'airblade/vim-gitgutter'
+endif
+
+" ----------------------------------------------------------------------------
+" 就地编译和错误处理
+" ----------------------------------------------------------------------------
+" 如果想在有错时自动打开quickfix窗口[12]：
+autocmd QuickFixCmdPost [^l]* nested cwindow
+autocmd QuickFixCmdPost    l* nested lwindow
+" 默认情况下，:mak[e]会跳转到第一个错误，如果不想启用这个功能，请使用:make!。
+
+" ----------------------------------------------------------------------------
+" Hacker News
+" ----------------------------------------------------------------------------
+NeoBundle 'ryanss/vim-hackernews'
+
+"-----------------------------------------------------------------------------
+" => General
+"-----------------------------------------------------------------------------
+" One of the most important options to activate. Allows you to switch from an
+" unsaved buffer without saving it first. Also allows you to keep an undo
+" history for multiple files. Vim will complain if you try to quit without
+" saving, and swap files will keep you safe if your computer crashes.
+set hidden
+
+" 不激活鼠标
+if has("mouse")
+    set mouse-=a
+endif
+
+" show matching brackets
+set showmatch
+
+""在状态栏显示正在输入的命令
+set showcmd
+
+" display mode INSERT/REPLACE/...
+set showmode
+
+" Remember info about open buffers on close"
+set viminfo^=%
+
+" changes special characters in search patterns (default)
+set magic
+
+" Required to be able to use keypad keys and map missed escape sequences
+set esckeys
+
+" Vim is in Insert mode by default
+" set insertmode
+
+" 默认自动加载已经修改的文件
+set autoread
+
+" vim使用tag进行切换时,修改的文件被自动保存
+set autowrite
+
+" 保存文件时自动删除行尾空格或Tab
+autocmd BufWritePre * :%s/\s\+$//e
+
+" 保存文件时自动删除末尾空行
+autocmd BufWritePre * :%s/^$\n\+\%$//ge
+
+" Puts new vsplit windows to the right of the current
+set splitright
+" Puts new split windows to the bottom of the current
+set splitbelow
+
+" Do not wrap long lines
+set nowrap
+
+" Better Unix / Windows compatibility
+set viewoptions=folds,options,cursor,unix,slash
+
+" Allow for cursor beyond last character
+set virtualedit=onemore
+
+" Store a ton of history (default is 20)
+set history=1000
+
+ " Spell Checking
+set nospell
+set spelllang=en,es,it
+set spellsuggest=5
+
+"-----------------------------------------------------------------------------
+" folding
+"-----------------------------------------------------------------------------
+set foldenable " Turn on folding
+set foldmethod=marker " Fold on the marker
+set foldlevel=100 " Don't autofold anything (but I can still fold manually)
+set foldopen=block,hor,mark,percent,quickfix,tag " what movements open folds
+
+"-----------------------------------------------------------------------------
+" Highlight problematic whitespace
+" Show trailing spaces as dots and carrots for extended lines.
+" From Janus, http://git.io/PLbAlw
+"-----------------------------------------------------------------------------
+" displaying listchars
+"set list
+
+" Reset the listchars
+set listchars=""
+" make tabs visible
+set listchars=tab:››
+" show trailing spaces as dots
+set listchars+=trail:•
+" The character to show in the last column when wrap is off and the line
+" continues beyond the right of the screen
+set listchars+=extends:>
+" The character to show in the last column when wrap is off and the line
+" continues beyond the right of the screen
+set listchars+=precedes:<
+
+"-----------------------------------------------------------------------------
+" Wild settings —— vim 自身命令行模式智能补全
+" From Janus, http://git.io/PLbAlw
+"-----------------------------------------------------------------------------
+" Better command-line completion
+set wildmenu
+" Complete like most shells – longest substring first, then iterate through
+" full matches
+set wildmode=longest:full,full
+" set wildmode=list:longest,list:full
+" Disable output and VCS files
+set wildignore+=*.o,*.out,*.obj,.git,*.rbc,*.rbo,*.class,.svn,*.gem
+" Disable archive files
+set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz
+" Ignore bundler and sass cache
+set wildignore+=*/vendor/gems/*,*/vendor/cache/*,*/.bundle/*,*/.sass-cache/*
+" Disable temp and backup files
+set wildignore+=*.swp,*~,._*
+
+"-----------------------------------------------------------------------------
+" 显示行号
+"-----------------------------------------------------------------------------
+if version >= 703
+    " Setup relative line numbers and a toggle
+    set relativenumber
+    function! NumberToggle()
+        if(&relativenumber == 1)
+            set norelativenumber
+            set number
+        else
+            set nonumber
+            set relativenumber
+        endif
+    endfunc
+
+    " Toggle into number when insert mode selected
+    autocmd InsertEnter * :set norelativenumber | set number
+    autocmd InsertLeave * :set nonumber | set relativenumber
+
+    " On focused lost switch to number
+    :au FocusLost * :set number
+    :au FocusGained * :set relativenumber
+
+    nnoremap <C-m> :call NumberToggle()<cr>
+else
+    set number
+endif
+
+"-----------------------------------------------------------------------------
+" vim file/folder management
+"-----------------------------------------------------------------------------
+" persistent undo
+if exists('+undofile')
+    set undofile
+    let &undodir = s:get_cache_dir('undo.vim')
+    call EnsureExists(&undodir)
+endif
+
+" backups
+set backup
+let &backupdir = s:get_cache_dir('backup.vim')
+call EnsureExists(&backupdir)
+
+" swap files
+set swapfile
+let &directory = s:get_cache_dir('swap.vim')
+call EnsureExists(&directory)
+
+"-----------------------------------------------------------------------------
+" VIM 7.3+ has support for highlighting a specified column.
+"-----------------------------------------------------------------------------
+if exists('+colorcolumn')
+    set colorcolumn=120
+else
+    au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>120v.\+', -1)
+endif
+
+"-----------------------------------------------------------------------------
+" Highlighting that moves with the cursor
+"-----------------------------------------------------------------------------
+set cursorline cursorcolumn
+autocmd WinLeave * setlocal nocursorline nocursorcolumn
+autocmd WinEnter * setlocal cursorline cursorcolumn
+
+" SignColumn should match background
+highlight clear SignColumn
+
+" Current line number row will have same background color in relative mode
+highlight clear LineNr
+
+" Remove highlight color from current line number
+highlight clear CursorLineNr
+
+" -----------------------------------------------------------------------------
+" Match and search
+" -----------------------------------------------------------------------------
+set hlsearch        " Highlight search results
+set incsearch       " Makes search act like search in modern browsers
+set ignorecase      " Ignore case when searching
+set smartcase       " When searching try to be smart about cases
+
+if executable('ack')
+    set grepprg=ack\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow\ $*
+    set grepformat=%f:%l:%c:%m
+endif
+
+if executable('ag')
+    set grepprg=ag\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow
+    set grepformat=%f:%l:%c:%m
+endif
+
+" -----------------------------------------------------------------------------
+" Make Vim use the system clipboard as the default register
+" -----------------------------------------------------------------------------
+if has('clipboard')
+    if has('unnamedplus')
+        " When possible use + register for copy-paste
+        set clipboard=unnamed,unnamedplus
+    else
+        " On mac and Windows, use * register for copy-paste
+        set clipboard=unnamed
+    endif
+endif
+
+" -----------------------------------------------------------------------------
+"  < 编码配置 >
+" -----------------------------------------------------------------------------
+" 注：使用utf-8格式后，软件与程序源码、文件路径不能有中文，否则报错
+set encoding=utf-8                                  "设置gvim内部编码
+set fileencoding=utf-8                              "设置当前文件编码
+set fileencodings=ucs-bom,utf-8,chinese             "设置支持打开的文件的编码
+
+" 文件格式，默认 ffs=dos,unix
+set fileformat=unix                                 "设置新文件的<EOL>格式
+set fileformats=unix,dos,mac                        "给出文件的<EOL>格式类型
+
+" -----------------------------------------------------------------------------
+" 有两种方法可以可以实现临时退出 Vi/Vim、进入 shell 环境后再回来的要求：
+" -----------------------------------------------------------------------------
+" 方法一：使用 Ctrl-z 以及 fg 这两个命令组合。
+" 　　这一解决方法主要利用了 Linux/Unix 的作业机制。具体原理是：
+" Ctrl-z 命令将当前的 Vi/Vim 进程放到后台执行，之后 shell 环境即可为你所用；
+" fg 命令则将位于后台的 Vi/Vim 进程放到前台执行，这样我们就再次进入 Vi/Vim 操
+" 作界面并恢复到原先的编辑状态。
+"
+" 方法二：使用行命令 :sh。
+" 　　在 Vi/Vim 的正常模式下输入 :sh即可进入 Linux/Unix shell 环境。
+" 在要返回到 Vi/Vim 编辑环境时，输入 exit 命令即可。
+
+" -----------------------------------------------------------------------------
+" 一键去除所有尾部空白
+" -----------------------------------------------------------------------------
+imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+nmap <leader>rb :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+vmap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+
+" -----------------------------------------------------------------------------
+" 一键去除^M字符
+" -----------------------------------------------------------------------------
+imap <leader>rm <ESC>:%s/<c-v><c-m>//g<CR>
+nmap <leader>rm :%s/<c-v><c-m>//g<CR>
+vmap <leader>rm <ESC>:%s/<c-v><c-m>//g<CR>
+
+" -----------------------------------------------------------------------------
+" Super retab -- tab和space之间的互相转换
+" http://vim.wikia.com/wiki/Super_retab#Script
+" -----------------------------------------------------------------------------
+" Return indent (all whitespace at start of a line), converted from
+" tabs to spaces if what = 1, or from spaces to tabs otherwise.
+" When converting to tabs, result has no redundant spaces.
+function! Indenting(indent, what, cols)
+    let spccol = repeat(' ', a:cols)
+    let result = substitute(a:indent, spccol, '\t', 'g')
+    let result = substitute(result, ' \+\ze\t', '', 'g')
+    if a:what == 1
+        let result = substitute(result, '\t', spccol, 'g')
+    endif
+    return result
+endfunction
+
+" Convert whitespace used for indenting (before first non-whitespace).
+" what = 0 (convert spaces to tabs), or 1 (convert tabs to spaces).
+" cols = string with number of columns per tab, or empty to use 'tabstop'.
+" The cursor position is restored, but the cursor will be in a different
+" column when the number of characters in the indent of the line is changed.
+function! IndentConvert(line1, line2, what, cols)
+    let savepos = getpos('.')
+    let cols = empty(a:cols) ? &tabstop : a:cols
+    execute a:line1 . ',' . a:line2 . 's/^\s\+/\=Indenting(submatch(0), a:what, cols)/e'
+    call histdel('search', -1)
+    call setpos('.', savepos)
+endfunction
+
+command! -nargs=? -range=% Space2Tab call IndentConvert(<line1>,<line2>,0,<q-args>)
+command! -nargs=? -range=% Tab2Space call IndentConvert(<line1>,<line2>,1,<q-args>)
+command! -nargs=? -range=% RetabIndent call IndentConvert(<line1>,<line2>,&et,<q-args>)
+
+" -----------------------------------------------------------------------------
+" vim分屏操作
+" -----------------------------------------------------------------------------
+" A、分屏启动vim
+"   １、使用大写的Ｏ参数来垂直分屏：vim -On file1 file2 ...
+"   ２、使用小写的o参数来水平分屏：vim -on file1 file2 ...
+"   注释：n是数字，表示分成几个屏
+" B、关闭分屏
+"   １、关闭当前窗口：Ctrl+w c
+"   ２、关闭当前窗口，如果只剩下最后一个了，则退出vim：Ctrl+w q
+" C、分屏
+"   １、上下分割当前打开的文件：Ctrl+w s
+"   ２、上下分割并打开一个新的文件：sp filename
+"   ３、左右分割当前打开的文件：Ctrl+w v
+"   ４、左右分割并打开一个新的文件：vsp filename
+" D、移动光标
+"   １、把光标移到右边的屏：Ctrl+w l
+"   ２、把光标移到左边的屏：Ctrl+w h
+"   ３、把光标移到上边的屏：Ctrl+w k
+"   ４、把光标移到下边的屏：Ctrl+w j
+"   ５、把光标移到下一个屏：Ctrl+w w
+" E、移动分屏
+"   １、向右移动：Ctrl+w L
+"   ２、向左移动：Ctrl+w H
+"   ３、向上移动：Ctrl+w K
+"   ４、向下移动：Ctrl+w J
+" F、屏幕尺寸
+"   １、让所有的屏都一样高：Ctrl+w =
+"   ２、增加高度：Ctrl+w +
+"   ３、减少高度：Ctrl+w -
+
+" -----------------------------------------------------------------------------
+" 窗口管理快捷键
+" -----------------------------------------------------------------------------
+" ctrl + w, h --> 选择左边窗口,存在的话
+" ctrl + w, j --> 选择下边窗口
+" ctrl + w, k --> 选择上边窗口
+" ctrl + w, l --> 选择右边窗口
+" ctrl + w, w --> 逆时针选择窗口
+" ctrl + w, s --> 水平拆分窗口
+" ctrl + w, v --> 垂直拆分窗口
+" ctrl + w, n --> 新建一个窗口
+" ctrl + w, q --> 关闭窗口
+
+" -----------------------------------------------------------------------------
+" 打开多个窗口
+" -----------------------------------------------------------------------------
+" :split         新建一个窗口，新窗口会放在原有窗口的上方。窗口内显示的内容是原有窗口中的同一个文件。
+" :split  files  打开由files指定的文件（可以是一个文件名，也可以是多个），新窗口会放在原有窗口的上方。
+" :vsplit        新建一个窗口，新窗口放在原有窗口的左方。窗口内显示的内容是原有窗口中的同一个文件。
+" :vsplit files  打开由files指定的文件（可以是一个文件名，也可以是多个），新窗口会放在原有窗口的左方。
+" :new           新建一个窗口，新窗口会放在原有窗口的上方。但是不显示任何文件。
+" :vnew          新建一个窗口，新窗口会放在原有窗口的左方。但是不显示任何文件。
+
+" -----------------------------------------------------------------------------
+" 关闭窗口
+" -----------------------------------------------------------------------------
+" :close  关闭当前光标所在的窗口。
+" :only   保留当前光标所在的窗口，但是关闭其它所有的窗口。
+
+" -----------------------------------------------------------------------------
+" 拷贝,删除与粘贴
+" -----------------------------------------------------------------------------
+"   yw               表示拷贝从当前光标到光标所在单词结尾的内容.
+"   dw               表示删除从当前光标到光标所在单词结尾的内容.
+"   y0               表示拷贝从当前光标到光标所在行首的内容.
+"   d0               表示删除从当前光标到光标所在行首的内容.
+"   y$               表示拷贝从当前光标到光标所在行尾的内容.
+"   d$               表示删除从当前光标到光标所在行尾的内容.
+"   yfa              表示拷贝从当前光标到光标后面的第一个a字符之间的内容.
+"   dfa              表示删除从当前光标到光标后面的第一个a字符之间的内容.
+"   特殊地:
+"   yy               表示拷贝光标所在行.
+"   dd               表示删除光标所在行.
+"   D                表示删除从当前光标到光标所在行尾的内容.
+"   另外，如
+" 　:5,12 co 13 将5至12行复制到第13行下
+
+" -----------------------------------------------------------------------------
+" 移动光标
+" -----------------------------------------------------------------------------
+"   %是从大括号的开始移动到大括号的结束位置
+"   :后边加行号就是跳到这一行
+
+" -----------------------------------------------------------------------------
+" 清除全部相同行：
+" -----------------------------------------------------------------------------
+"   :g/\%(^\1\n\)\@<=\(.*\)$/d
+" 其中\@<= 这是一个逆向环视，意为前面是什么(a)的什么(b)，锁定目标为 b，即如果对
+" 删除内容进行删除，那么b被删除，而a不会被删除。在java里，a表示为非捕获组。
+
+" -----------------------------------------------------------------------------
+" vimdiff
+" -----------------------------------------------------------------------------
+" vimdiff的基本用法是：vimdiff FILE_LEFT FILE_RIGHT
+" 跳转到下一个差异点：]c
+" 跳转到上一个差异点：［c
+" 如果希望把一个差异点中当前文件的内容复制到另一个文件里，可以使用命令：dp
+" 如果希望把另一个文件的内容复制到当前行中，可以使用命令：do
+" 如果希望在两个文件之间来回跳转，可以使用命令：Ctrl-w,w
+" 手工刷新比较结果：diffupdate
+
+" -----------------------------------------------------------------------------
+" ex指令
+" -----------------------------------------------------------------------------
+" Ａ、读写资料
+"   :10,20w test    将第10行到第20行的资料写入test文件
+"   :10,20w>>test   将第10行到第20行的资料追加到test文件
+"   :r test         将test文件的资料读入编辑缓冲区的最后
+" Ｂ、行地址符
+"   .   代表当前行
+"   $   代表文件的最后一行
+"   %   代表文件的每一行
+"   这些符号可以与绝对行地址组合使用，例如：
+"   :.,$ d      删除从当前行到文件尾
+"   :20,. m $   把20～当前行的文本移动到文件末尾
+"   :% d        删除文件中的所有行
+"   :% t $      复制所有行并把它们粘贴到文件的尾部
+"   :.,.+20 d   删除从当前行到当前行以下20行
+" Ｃ、全局搜索
+" 可以对文件中的所有行使用全局命令，也可以使用行地址把全局搜索限定在指定的行或
+" 列范围内：
+" :g/pattern        寻找（移动到）模式pattern在文件中最后出现的位置
+" :g/pattern/p      寻找并显示文件中所有包含模式pattern的行
+" :g!/pattern/nu    寻找并显示文件中所有包含模式pattern的行，并显示这些行号
+" :20,40g/pattern/p 寻找并显示第20到40行之间所有包含模式pattern的行
+
+" -----------------------------------------------------------------------------
+" 搜索移动
+" -----------------------------------------------------------------------------
+" *         ——正向搜索光标所在的单词（精确匹配）
+" #         ——反向搜索光标所在的单词（精确匹配）
+" g*        ——正向搜索光标所在的单词（模糊匹配）
+" g#        ——反向搜索光标所在的单词（模糊匹配）
+
+" -----------------------------------------------------------------------------
+" 鼠标不动屏幕动
+" -----------------------------------------------------------------------------
+" zz 将当前行置于屏幕中间
+" zt 将当前行置于屏幕顶端
+" zb 将当前行置于屏幕底端
+
+" -----------------------------------------------------------------------------
+" 普通模式下的一些命令
+" -----------------------------------------------------------------------------
+" a(A) => Append                       b(B) => Backward word
+" c(C) => Change                       d(D) => Delete
+" e(E) => End of word                  f(F) => Find
+" g(G) => Go                           H    => Home of window
+" i(I) => Insert                       J    => Join
+" K    => Keyword under the cursor     L    => Last line of window
+" m    => Mark                         M    => Middle line of window
+" n(N) => Next find                    o(O) => Open a new line
+" p    => Paste                        r(R) => Replace
+" s(S) => Substitue                    t(T) => Till
+" u(U) => Undo                         v(V) => Visual mode
+" w(W) => Word move                    y(Y) => Yank
+
+" ----------------------------------------------------------------------------
+" 退出vim后，内容显示在终端屏幕
+" ----------------------------------------------------------------------------
+set t_ti= t_te=
+
+" ----------------------------------------------------------------------------
+" 主题风格
+" ----------------------------------------------------------------------------
+" 主题：jellybeans.vim
+NeoBundle 'nanotech/jellybeans.vim'
+" 主题：molokai
+NeoBundle 'tomasr/molokai'
+let g:molokai_original = 1
+let g:rehash256 = 1
+"主题 solarized
+NeoBundle 'altercation/vim-colors-solarized'
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+let g:solarized_contrast="normal"
+let g:solarized_visibility="normal"
+
+" ----------------------------------------------------------------------------
+" 状态栏
+" ----------------------------------------------------------------------------
+" Always show the airline bar
+set laststatus=2
+" 小巧美观的状态栏
+NeoBundle 'bling/vim-airline'
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
+
+" airline-whitespace
+" enable/disable detection of whitespace errors.
+let g:airline#extensions#whitespace#enabled = 0
+
+" airline-tabline
+" enable/disable enhanced tabline.
+let g:airline#extensions#tabline#enabled = 1
+" enable/disable displaying index of the buffer.
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
+
+"=============================================================================
+" NeoBundle end
+"=============================================================================
+" Required:
+call neobundle#end()
+filetype plugin indent on
+
+" If there are uninstalled bundles found on startup,
+" this will conveniently prompt you to install them.
+NeoBundleCheck
+
+" If using a dark background within the editing area and syntax highlighting
+" turn on this option as well
+set background=dark
+
+" Explicitly tell vim that the terminal supports 256 colors,
+" need before setting the colorscheme
+if (&term =~ "xterm") || (&term =~ "screen")
+	set t_Co=256
+endif
+
+" Colorscheme
+"colorscheme jellybeans
+colorscheme molokai
+

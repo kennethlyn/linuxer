@@ -17,6 +17,14 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 * [Xilinx University Program](https://github.com/xupsh)
 * [Fpgadeveloper](https://github.com/fpgadeveloper)
 
+## 视频教程
+* [FPGA软件硬件协同设计](http://study.chinaaet.com/course/6100000023)
+* [Vivado入门与提高](http://study.chinaaet.com/course/6100000016)
+
+## 博客
+ [cuter](http://blog.chinaaet.com/cuter521)
+ [snifer](http://blog.chinaaet.com/snifer)
+
 ## Example
 * [Zynq-SoC-Training](https://github.com/ama142/Zynq-SoC-Training)
 * [category/zynq-training](http://www.googoolia.com/wp/category/zynq-training/)

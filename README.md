@@ -9,23 +9,47 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 * [必应](http://cn.bing.com/)
 * [雅虎](https://search.yahoo.com/)
 
+## 社区
+帐号：yjlin871002
+邮箱：yujiang@hstc.edu.cn
+[中国电子网技术论坛](http://bbs.21ic.com/)
+[电子技术应用](http://www.chinaaet.com/)
+
 ## Github
 * [Xilinx](https://github.com/Xilinx)
 * [Digilent](https://github.com/Digilent)
 * [Analog Devices Inc.](https://github.com/analogdevicesinc)
 * [Trenz Electronic GmbH](https://github.com/Trenz-Electronic)
 * [Xilinx University Program](https://github.com/xupsh)
+* [Digilent](https://github.com/Digilent)
+* [DigilentInc](https://github.com/DigilentInc)
 * [Fpgadeveloper](https://github.com/fpgadeveloper)
+* [Architech (Silica EMEA)](https://github.com/Architech-Silica)
+
+## wiki
+* [Analog Devices](https://wiki.analog.com/)
 
 ## 视频教程
 * [FPGA软件硬件协同设计](http://study.chinaaet.com/course/6100000023)
 * [Vivado入门与提高](http://study.chinaaet.com/course/6100000016)
+* [EEWORLD大学堂](http://training.eeworld.com.cn/)
 
 ## 博客
- [cuter](http://blog.chinaaet.com/cuter521)
- [snifer](http://blog.chinaaet.com/snifer)
+[MicroZed Chronicles](http://adiuvoengineering.com/?page_id=285)
+[New Horizons](http://svenand.blogdrive.com/)
+[d9 Tech Blog](http://blog.idv-tech.com/)
+[cuter](http://blog.chinaaet.com/cuter521)
+[snifer](http://blog.chinaaet.com/snifer)
+[fuxiao](http://blog.chinaaet.com/fuxiao)
 
 ## Example
+* [opencores.com](http://opencores.com/)
+* [An FPGA Tutorial using the ZedBoard](http://www.beyond-circuits.com/wordpress/tutorial/)
+* [A Tutorial on the Device Tree (Zynq)](http://xillybus.com/tutorials/device-tree-zynq-1)
+* [U-Boot programming: A tutorial](http://xillybus.com/tutorials/uboot-hacking-howto-1)
+* [S5PV210 u-boot LCD驱动 自动更新增加进度条](http://blog.csdn.net/hclydao/article/details/30070043)
+* [Development with Zynq](http://blog.fakultaet-technik.de/development-with-zynq-part-1/)
+* [Video capture with VDMA](http://lauri.võsandi.com/hdl/zynq/xilinx-video-capture.html)
 * [Zynq-SoC-Training](https://github.com/ama142/Zynq-SoC-Training)
 * [category/zynq-training](http://www.googoolia.com/wp/category/zynq-training/)
 * [antmicro/zynq-mkbootimage](https://github.com/antmicro/zynq-mkbootimage)

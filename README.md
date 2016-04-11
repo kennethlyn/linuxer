@@ -88,6 +88,8 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 [snifer](http://blog.chinaaet.com/snifer)
 [fuxiao](http://blog.chinaaet.com/fuxiao)
 [judyzhong](http://xilinx.eetrend.com.mdjrlzy.com/blogs/judyzhong)
+[RZJMPB](http://blog.csdn.net/RZJMPB/article/category/5857087)
+[电子懒兔子](http://www.eefocus.com/nightseas/blog)
 
 ## Example
 * [opencores.com](http://opencores.com/)

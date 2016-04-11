@@ -57,6 +57,7 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 * [米尔科技](http://www.myir-tech.com/)
 * [米尔技术社区](http://www.myir-tech.com/bbs/forum-53-1.html)
 * [虎甲虫](http://www.iopenhec.com/)
+* [The Boston University Electronics Design Facility](http://ohm.bu.edu/~cwoodall/roblyer/dDOSI/undersampling/)
 
 
 ## Github

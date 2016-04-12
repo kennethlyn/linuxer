@@ -2,6 +2,7 @@
 Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏黑客、骇客、红客，技术高超，可谓藏龙卧虎。一个成熟的Linuxer能够游走于表面的命令提示符与内部代码细节实现之间，他们甚至也是 Linux 内核源码的贡献者，这是我个人追求的梦想，而现在正在为此梦想而努力学习着，故将此笔记取名 linuxer，旨在将本人学习和探索 linux 的笔记与他人分享，同时也希望得到高手的指点。
 
 帐号：yjlin871002
+
 邮箱：yujiang@hstc.edu.cn
 
 ## 搜索引擎
@@ -38,6 +39,7 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 * [OpenHW开源硬件社区](http://www.openhw.org/)
 * [EETOP 赛灵思（Xilinx）社区](http://xilinx.eetop.cn/)
 * [Xilinx 电子创新网](http://xilinx.eetrend.com/)
+* [Xilinx® Training on Embedded Linux](https://forums.xilinx.com/t5/Embedded-Linux/Xilinx-Training-on-Embedded-Linux/td-p/134388)
 * [Vivado 视频辅导资料](http://china.xilinx.com/training/vivado/)
 * [Zynq-7000 AP SoC Boot - Multiboot Tech Tip](http://www.wiki.xilinx.com/Zynq-7000+AP+SoC+Boot+-+Multiboot+Tech+Tip)
 * [Vivado-Based Workshops](http://www.xilinx.com/support/university/vivado/vivado-workshops.html)
@@ -51,12 +53,15 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 * [ADI 中国](http://www.analog.com/cn/index.html)
 * [ADI中文技术论坛](https://ezchina.analog.com/welcome)
 * [ADI Wiki](https://wiki.analog.com/)
+* [New Horizons Zynq Blog](http://svenand.blogdrive.com/)
 * [Redpitaya](http://redpitaya.com/?lang=zh-hans)
 * [xfest](http://www.xfest2014.com/home)
 * [威视锐](http://www.v3best.com/)
 * [米尔科技](http://www.myir-tech.com/)
 * [米尔技术社区](http://www.myir-tech.com/bbs/forum-53-1.html)
 * [虎甲虫](http://www.iopenhec.com/)
+* [Trenz Electronic Documentation](https://wiki.trenz-electronic.de/display/PD/Trenz+Electronic+Documentation)
+* [http://elinux.org/Zedboard](http://elinux.org/Zedboard)
 * [The Boston University Electronics Design Facility](http://ohm.bu.edu/~cwoodall/roblyer/dDOSI/undersampling/)
 
 
@@ -123,6 +128,4 @@ Linuxer 源于一群对 Linux 疯狂热衷人的称呼，在 Linuxer 中不乏�
 ## Tools
 * [Xilinx tools on Ubuntu](http://e-lab.github.io/html/wiki-xilinx-tools-on-ubuntu.html)
 * [Linux embedded tools](https://github.com/andreamerello/linux-embedded-tools)
-
-## 网购
-* [华强芯城](http://www.hqchip.com/)
+* [Gitbook](https://www.gitbook.com/)
